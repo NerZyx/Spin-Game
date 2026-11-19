@@ -1,0 +1,566 @@
+/* ==========================================================
+   1. Theme variables
+   ========================================================== */
+:root {
+  color-scheme: dark;
+
+  --page-bg: #101114;
+  --surface: #191b20;
+  --surface-hover: #22252b;
+  --border: #343841;
+
+  --text: #f1f1f1;
+  --muted: #a6abb5;
+
+  --green: #3ea65b;
+  --green-hover: #4fbe6c;
+  --green-glow: rgb(62 166 91 / 22%);
+
+  --focus-ring: #a9d2ff;
+}
+
+/* ==========================================================
+   Rarity colours
+   ========================================================== */
+.Common       { --rarity-color: #b8c0cc; }
+.Uncommon     { --rarity-color: #45d483; }
+.Rare         { --rarity-color: #42a5f5; }
+.Epic         { --rarity-color: #a875ff; }
+.Legendary    { --rarity-color: #d99100; }
+.Mythic       { --rarity-color: #f04fa6; }
+.Divine       { --rarity-color: #ffe66d; }
+.Celestial    { --rarity-color: #32d6d9; }
+.Transcendent { --rarity-color: #ff725e; }
+.Supreme      { --rarity-color: #f4f1ff; }
+
+/* ==========================================================
+   Default rarity text
+   ========================================================== */
+.Common, .Uncommon, .Rare, .Epic, .Legendary,
+.Mythic, .Divine, .Celestial, .Transcendent, .Supreme {
+  color: var(--rarity-color);
+}
+
+.Common, .Uncommon, .Rare, .Epic, .Legendary, .Mythic {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--rarity-color) 40%, transparent);
+}
+
+/* ==========================================================
+   Special-tier text effects
+   ========================================================== */
+.Divine:not(:empty),
+.Celestial:not(:empty),
+.Transcendent:not(:empty),
+.Supreme:not(:empty) {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--rarity-color) 40%, transparent);
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-weight: 800;
+}
+
+
+.Divine:not(:empty) {
+  background-image: linear-gradient(
+    100deg,
+    #fffdf2,
+    #ffe98a,
+    #ffffff,
+    #e8ddff,
+    #fffdf2
+  );
+  background-size: 300% 100%;
+  animation: rarity-text-flow 2.4s ease-in-out infinite alternate;
+}
+
+
+.Celestial:not(:empty) {
+  background-image: linear-gradient(
+    100deg,
+    #0752e8,
+    #00dfff,
+    #d9ffff,
+    #5740ff,
+    #00aaff,
+    #0752e8
+  );
+  background-size: 300% 100%;
+  animation: rarity-text-flow 2.2s ease-in-out infinite alternate;
+}
+
+.Transcendent:not(:empty) {
+  background-image: linear-gradient(
+    100deg,
+    #a900ff,
+    #ff32b5,
+    #ff5538,
+    #fff04a,
+    #40edc2,
+    #a900ff
+  );
+  background-size: 300% 100%;
+  animation: rarity-text-flow 2.6s ease-in-out infinite alternate;
+}
+
+.Supreme:not(:empty) {
+  background-image:
+    /* A few sparse glints instead of a repeating star pattern */
+    radial-gradient(circle at 15% 35%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 52% 70%, #e8fbff 0 1.2px, transparent 2.2px),
+    radial-gradient(circle at 88% 28%, #fff 0 1px, transparent 2px),
+
+    /* Nebula colors */
+    radial-gradient(ellipse at 20% 75%, #ff20d0, transparent 68%),
+    radial-gradient(ellipse at 75% 20%, #5926ff, transparent 68%),
+    radial-gradient(ellipse at 55% 85%, #00dfff, transparent 62%),
+    linear-gradient(100deg, #fff1a6, #f2d8ff, #c5faff, #ffddf7);
+
+  background-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    180% 220%,
+    180% 220%,
+    180% 220%,
+    300% 100%;
+
+  animation: supreme-text-nebula 2.8s ease-in-out infinite alternate;
+}
+
+
+/* ==========================================================
+   Special-tier accent effects
+   Empty elements only; existing height/width is preserved.
+   ========================================================== */
+.Divine:empty,
+.Celestial:empty,
+.Transcendent:empty,
+.Supreme:empty {
+  display: block;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.Divine:empty {
+  background: linear-gradient(100deg, #c78a16, #ffe66d, #fff4ad, #e9b72a);
+  background-size: 220% 100%;
+  animation: rarity-accent-flow 4s ease-in-out infinite alternate;
+}
+
+.Celestial:empty {
+  background: linear-gradient(100deg, #08cbd6, #34aaff, #7653ec, #39e3d1);
+  background-size: 250% 100%;
+  animation: rarity-accent-flow 3.5s ease-in-out infinite alternate;
+}
+
+.Transcendent:empty {
+  background: linear-gradient(100deg, #c53ed0, #ff58b7, #ff795d, #ffd95b, #68e6aa, #c53ed0);
+  background-size: 300% 100%;
+  animation: rarity-accent-flow 4s linear infinite;
+}
+
+.Supreme:empty {
+  background:
+    radial-gradient(ellipse at 25% 50%, #b9a0ff, transparent 45%),
+    radial-gradient(ellipse at 75% 50%, #91eaff, transparent 45%),
+    linear-gradient(100deg, #fff8e8, #d9d2ff, #e3fbff, #fff);
+  background-size: 200% 100%, 200% 100%, 250% 100%;
+  animation: supreme-accent-nebula 5s ease-in-out infinite alternate;
+}
+
+/* ==========================================================
+   Animations
+   ========================================================== */
+@keyframes rarity-text-flow {
+  to { background-position: 100% center; }
+}
+
+@keyframes supreme-text-nebula {
+  to {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      100% 0%,
+      0% 100%,
+      100% 0%,
+      100% center;
+  }
+}
+
+
+@keyframes rarity-accent-flow {
+  to { background-position: 100% center; }
+}
+
+@keyframes supreme-accent-nebula {
+  to { background-position: 100% 50%, 0% 50%, 100% 50%; }
+}
+
+/* ==========================================================
+   Reduced motion
+   ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .Divine:not(:empty),
+  .Celestial:not(:empty),
+  .Transcendent:not(:empty),
+  .Supreme:not(:empty),
+  .Divine:empty,
+  .Celestial:empty,
+  .Transcendent:empty,
+  .Supreme:empty {
+    animation: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================
+   3. Base
+   ========================================================== */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--page-bg);
+}
+
+html,
+body,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  /* Fallback first, then full height that respects the mobile address bar */
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: Arial, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Extra bottom space so the last card isn't hidden behind the spin button */
+main {
+  width: min(100%, 760px);
+  margin-inline: auto;
+  padding-bottom: 5.5rem;
+}
+
+h1 {
+  width: fit-content;
+  margin: 0.5rem 0 1rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 3px solid var(--green);
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* ==========================================================
+   4. Reel cards
+   ========================================================== */
+.reels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.65rem;
+}
+
+.reel {
+  display: flex;
+  min-width: 0;
+  min-height: 145px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: background 150ms ease;
+}
+
+.reel h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* The result inherits its rarity colour. Easing keeps flicker smooth,
+   and min-height stops the card resizing as text changes. */
+.value {
+  display: flex;
+  min-height: 2.4rem;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: var(--rarity-color, var(--text));
+  font-size: clamp(1rem, 4.5vw, 1.2rem);
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+  transition:
+    color 120ms ease,
+    text-shadow 120ms ease,
+    filter 200ms ease,
+    opacity 200ms ease;
+}
+
+/* Optional images */
+.reel-image {
+  display: block;
+  width: 100%;
+  max-height: 130px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.reel-images {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.reel-images img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* ==========================================================
+   5. Buttons
+   ========================================================== */
+button {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: #07130a;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Slimmer spin buttons, used for each card and for SPIN ALL */
+.spin-button {
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  width: auto;
+}
+
+/* Small circular info button */
+.info-button {
+  display: grid;
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #555;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Hover styles only for devices with a mouse, so taps don't leave them stuck */
+@media (hover: hover) {
+  .reel:hover {
+    background: var(--surface-hover);
+  }
+
+  button:hover:not(:disabled) {
+    background: var(--green-hover);
+  }
+
+  .info-button:hover:not(:disabled) {
+    border-color: var(--green);
+    background: #222;
+  }
+}
+
+/* ==========================================================
+   6. Spin controls (fixed at the bottom)
+   ========================================================== */
+.controls {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  padding: 0.5rem 1rem max(0.5rem, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--page-bg) 70%, transparent);
+}
+
+/* ==========================================================
+   7. Spinning state
+   ========================================================== */
+.reel.spinning {
+  animation: spin-glow 700ms ease-in-out infinite alternate;
+}
+
+.reel.spinning .value {
+  opacity: 0.85;
+}
+
+@keyframes spin-glow {
+  to {
+    box-shadow: 0 0 18px var(--green-glow);
+  }
+}
+
+/* ==========================================================
+   8. Info dialog (centred, about half the screen height)
+   ========================================================== */
+.info-dialog {
+  width: min(90vw, 420px);
+  max-height: 50dvh;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.info-dialog::backdrop {
+  background: rgb(0 0 0 / 70%);
+}
+
+.info-dialog-content {
+  padding: 1.1rem;
+}
+
+.info-dialog h2 {
+  margin: 0 0 0.9rem;
+  font-size: 1.15rem;
+}
+
+.possible-results {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.possible-result {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--rarity-color, var(--text));
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.nothing-result {
+  color: var(--muted);
+}
+
+.possible-result-names {
+  margin-top: 0.3rem;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.info-close {
+  min-height: 40px;
+}
+
+/* ==========================================================
+   9. Responsive layout
+   ========================================================== */
+@media (min-width: 620px) {
+  body {
+    padding: 2rem;
+  }
+
+  .reels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .reel {
+    min-height: 155px;
+    padding: 0.9rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .reels {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================
+   10. Reduced motion
+   ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
