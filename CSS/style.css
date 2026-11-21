@@ -1,241 +1,135 @@
 /* ==========================================================
-   1. Theme variables
+   Theme Colors
    ========================================================== */
-:root {
+:root{
   color-scheme: dark;
-
-  --page-bg: #101114;
-  --surface: #191b20;
-  --surface-hover: #22252b;
-  --border: #343841;
-
-  --text: #f1f1f1;
-  --muted: #a6abb5;
-
-  --green: #3ea65b;
-  --green-hover: #4fbe6c;
-  --green-glow: rgb(62 166 91 / 22%);
-
   --focus-ring: #a9d2ff;
+
+  /* Surfaces */
+  --page-bg: #0b0c0e;
+  --surface: #15171b;
+  --surface-hover: #252931;
+  --border: #2e323a;
+  --border-strong: #646b77;
+
+  /* Text */
+  --text: #E3EEE8;
+  --muted: #98A39D;
+  --on-green: #04120a;
+
+  /* Accent */
+  --green: #3ea65b;
+  --green-hover: #5cc574;
+  --green-glow: rgb(62 166 91 / 25%);
 }
 
 /* ==========================================================
-   Rarity colours
+   Rarity Colors
    ========================================================== */
-.Common       { --rarity-color: #b8c0cc; }
-.Uncommon     { --rarity-color: #45d483; }
-.Rare         { --rarity-color: #42a5f5; }
-.Epic         { --rarity-color: #a875ff; }
-.Legendary    { --rarity-color: #d99100; }
-.Mythic       { --rarity-color: #f04fa6; }
-.Divine       { --rarity-color: #ffe66d; }
-.Celestial    { --rarity-color: #32d6d9; }
-.Transcendent { --rarity-color: #ff725e; }
-.Supreme      { --rarity-color: #f4f1ff; }
+.Common       { --rarity-color: rgb(156, 163, 175); }
+.Uncommon     { --rarity-color: rgb(69, 212, 131); }
+.Rare         { --rarity-color: rgb(66, 165, 245); }
+.Epic         { --rarity-color: rgb(168, 117, 255); }
+.Legendary    { --rarity-color: rgb(212, 175, 55); }
+.Mythic       { --rarity-color: rgb(240, 79, 166); }
+.Divine       { --rarity-color: rgb(255, 240, 160); }
+.Celestial    { --rarity-color: rgb(50, 214, 217); }
+.Transcendent { --rarity-color: rgb(255, 114, 94); }
+.Supreme      { --rarity-color: rgb(255, 160, 245); }
 
-/* ==========================================================
-   Default rarity text
-   ========================================================== */
 .Common, .Uncommon, .Rare, .Epic, .Legendary,
-.Mythic, .Divine, .Celestial, .Transcendent, .Supreme {
+.Mythic, .Divine, .Celestial, .Transcendent, .Supreme{
   color: var(--rarity-color);
 }
 
-.Common, .Uncommon, .Rare, .Epic, .Legendary, .Mythic {
-  text-shadow: 0 0 8px color-mix(in srgb, var(--rarity-color) 40%, transparent);
+/* ==========================================================
+   Special-Tier Rarity Animation
+   ========================================================== */
+@supports (-webkit-background-clip: text) or (background-clip: text){
+  .Divine,
+  .Celestial,
+  .Transcendent,
+  .Supreme{
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+  }
 }
 
-/* ==========================================================
-   Special-tier text effects
-   ========================================================== */
-.Divine:not(:empty),
-.Celestial:not(:empty),
-.Transcendent:not(:empty),
-.Supreme:not(:empty) {
+
+/*Shared Settings*/
+.Divine,
+.Celestial,
+.Transcendent,
+.Supreme {
+  display: inline-block;
   color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--rarity-color) 40%, transparent);
-  background-clip: text;
   -webkit-background-clip: text;
-  font-weight: 800;
+  background-clip: text;
+  background-size: 200% 100%;
+  animation: 
+    rarity-text-flow var(--rarity-duration) ease-in-out infinite,
+    rarity-text-glow var(--rarity-duration) ease-in-out infinite;
 }
 
 
-.Divine:not(:empty) {
+/*Separate Settings*/
+.Divine {
+  --rarity-duration: 1.8s;
   background-image: linear-gradient(
     100deg,
-    #fffdf2,
-    #ffe98a,
-    #ffffff,
-    #e8ddff,
-    #fffdf2
+    #ffc83a,#ffd23f,#fff2b3,#ffd23f,#ffb62e,#ffc83a
   );
-  background-size: 300% 100%;
-  animation: rarity-text-flow 2.4s ease-in-out infinite alternate;
 }
 
-
-.Celestial:not(:empty) {
+.Celestial {
+  --rarity-duration: 1.6s;
   background-image: linear-gradient(
     100deg,
-    #0752e8,
-    #00dfff,
-    #d9ffff,
-    #5740ff,
-    #00aaff,
-    #0752e8
+    #0fb8c9,#32d6d9,#9ff5f2,#32d6d9,#1aa3d9,#0fb8c9
   );
-  background-size: 300% 100%;
-  animation: rarity-text-flow 2.2s ease-in-out infinite alternate;
 }
 
-.Transcendent:not(:empty) {
+.Transcendent {
+  --rarity-duration: 2s;
   background-image: linear-gradient(
     100deg,
-    #a900ff,
-    #ff32b5,
-    #ff5538,
-    #fff04a,
-    #40edc2,
-    #a900ff
+    #ff725e,#ff9a6b,#ff4f7b,#ffb46b,#ff725e
   );
-  background-size: 300% 100%;
-  animation: rarity-text-flow 2.6s ease-in-out infinite alternate;
 }
 
-.Supreme:not(:empty) {
-  background-image:
-    /* A few sparse glints instead of a repeating star pattern */
-    radial-gradient(circle at 15% 35%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 52% 70%, #e8fbff 0 1.2px, transparent 2.2px),
-    radial-gradient(circle at 88% 28%, #fff 0 1px, transparent 2px),
-
-    /* Nebula colors */
-    radial-gradient(ellipse at 20% 75%, #ff20d0, transparent 68%),
-    radial-gradient(ellipse at 75% 20%, #5926ff, transparent 68%),
-    radial-gradient(ellipse at 55% 85%, #00dfff, transparent 62%),
-    linear-gradient(100deg, #fff1a6, #f2d8ff, #c5faff, #ffddf7);
-
-  background-size:
-    100% 100%,
-    100% 100%,
-    100% 100%,
-    180% 220%,
-    180% 220%,
-    180% 220%,
-    300% 100%;
-
-  animation: supreme-text-nebula 2.8s ease-in-out infinite alternate;
+.Supreme {
+  --rarity-duration: 2.1s;
+  background-image: linear-gradient(
+    100deg,
+    #ff9ee9,#ffb3f5,#9fd6ff,#d4aaff,#ff9ee9
+  );
 }
 
 
-/* ==========================================================
-   Special-tier accent effects
-   Empty elements only; existing height/width is preserved.
-   ========================================================== */
-.Divine:empty,
-.Celestial:empty,
-.Transcendent:empty,
-.Supreme:empty {
-  display: block;
-  overflow: hidden;
-  border-radius: 6px;
-}
-
-.Divine:empty {
-  background: linear-gradient(100deg, #c78a16, #ffe66d, #fff4ad, #e9b72a);
-  background-size: 220% 100%;
-  animation: rarity-accent-flow 4s ease-in-out infinite alternate;
-}
-
-.Celestial:empty {
-  background: linear-gradient(100deg, #08cbd6, #34aaff, #7653ec, #39e3d1);
-  background-size: 250% 100%;
-  animation: rarity-accent-flow 3.5s ease-in-out infinite alternate;
-}
-
-.Transcendent:empty {
-  background: linear-gradient(100deg, #c53ed0, #ff58b7, #ff795d, #ffd95b, #68e6aa, #c53ed0);
-  background-size: 300% 100%;
-  animation: rarity-accent-flow 4s linear infinite;
-}
-
-.Supreme:empty {
-  background:
-    radial-gradient(ellipse at 25% 50%, #b9a0ff, transparent 45%),
-    radial-gradient(ellipse at 75% 50%, #91eaff, transparent 45%),
-    linear-gradient(100deg, #fff8e8, #d9d2ff, #e3fbff, #fff);
-  background-size: 200% 100%, 200% 100%, 250% 100%;
-  animation: supreme-accent-nebula 5s ease-in-out infinite alternate;
-}
-
-/* ==========================================================
-   Animations
-   ========================================================== */
+/*Animation*/
 @keyframes rarity-text-flow {
-  to { background-position: 100% center; }
+  0%   { background-position: 0% center; }
+  70%  { background-position: 200% center; }
+  100% { background-position: 200% center; }
 }
 
-@keyframes supreme-text-nebula {
-  to {
-    background-position:
-      0 0,
-      0 0,
-      0 0,
-      100% 0%,
-      0% 100%,
-      100% 0%,
-      100% center;
-  }
-}
-
-
-@keyframes rarity-accent-flow {
-  to { background-position: 100% center; }
-}
-
-@keyframes supreme-accent-nebula {
-  to { background-position: 100% 50%, 0% 50%, 100% 50%; }
+@keyframes rarity-text-glow {
+  0%, 100% { filter: brightness(1); }
+  35%      { filter: brightness(1.15); }
+  70%      { filter: brightness(1); }
 }
 
 /* ==========================================================
-   Reduced motion
-   ========================================================== */
-@media (prefers-reduced-motion: reduce) {
-  .Divine:not(:empty),
-  .Celestial:not(:empty),
-  .Transcendent:not(:empty),
-  .Supreme:not(:empty),
-  .Divine:empty,
-  .Celestial:empty,
-  .Transcendent:empty,
-  .Supreme:empty {
-    animation: none;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-/* ==========================================================
-   3. Base
+   Base
    ========================================================== */
 * {
   box-sizing: border-box;
 }
 
 html {
-  min-width: 320px;
-  background: var(--page-bg);
+  background-color: var(--page-bg);
 }
 
 html,
@@ -245,40 +139,25 @@ button {
 }
 
 body {
-  /* Fallback first, then full height that respects the mobile address bar */
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100vh;  /* fallback */
+  min-height: 100dvh; /* adapts to mobile browser controls */
   margin: 0;
   padding:
     max(1rem, env(safe-area-inset-top))
     max(1rem, env(safe-area-inset-right))
     max(1.5rem, env(safe-area-inset-bottom))
     max(1rem, env(safe-area-inset-left));
-  background: var(--page-bg);
   color: var(--text);
-  font-family: Arial, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: system-ui, sans-serif;
 }
 
-/* Extra bottom space so the last card isn't hidden behind the spin button */
 main {
   width: min(100%, 760px);
   margin-inline: auto;
-  padding-bottom: 5.5rem;
-}
-
-h1 {
-  width: fit-content;
-  margin: 0.5rem 0 1rem;
-  padding-bottom: 0.45rem;
-  border-bottom: 3px solid var(--green);
-  font-size: clamp(1.5rem, 6vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
 }
 
 /* ==========================================================
-   4. Reel cards
+   Reel cards
    ========================================================== */
 .reels {
   display: grid;
@@ -289,24 +168,21 @@ h1 {
 .reel {
   display: flex;
   min-width: 0;
-  min-height: 145px;
+  min-height: 132px;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0.55rem;
-  padding: 0.8rem;
+  gap: 0.45rem;
+  padding: 0.75rem;
   overflow: hidden;
-  background: var(--surface);
+  background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  transition: background 150ms ease;
 }
 
 .reel h2 {
   margin: 0;
+  font-size:  0.85rem;
   color: var(--muted);
-  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -317,8 +193,6 @@ h1 {
   gap: 0.5rem;
 }
 
-/* The result inherits its rarity colour. Easing keeps flicker smooth,
-   and min-height stops the card resizing as text changes. */
 .value {
   display: flex;
   min-height: 2.4rem;
@@ -326,45 +200,15 @@ h1 {
   align-items: center;
   justify-content: center;
   margin: 0;
-  color: var(--rarity-color, var(--text));
   font-size: clamp(1rem, 4.5vw, 1.2rem);
   font-weight: 800;
   line-height: 1.3;
   text-align: center;
   overflow-wrap: anywhere;
-  transition:
-    color 120ms ease,
-    text-shadow 120ms ease,
-    filter 200ms ease,
-    opacity 200ms ease;
-}
-
-/* Optional images */
-.reel-image {
-  display: block;
-  width: 100%;
-  max-height: 130px;
-  object-fit: contain;
-  border-radius: 10px;
-}
-
-.reel-images {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.reel-images img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  border-radius: 8px;
 }
 
 /* ==========================================================
-   5. Buttons
+   Buttons
    ========================================================== */
 button {
   width: 100%;
@@ -373,7 +217,7 @@ button {
   border: 0;
   border-radius: 999px;
   background: var(--green);
-  color: #07130a;
+  color: var(--on-green);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 800;
@@ -385,6 +229,7 @@ button {
 
 button:active:not(:disabled) {
   transform: scale(0.98);
+  filter: brightness(0.92);
 }
 
 button:disabled {
@@ -413,7 +258,7 @@ button:focus-visible {
   min-height: 28px;
   place-items: center;
   padding: 0;
-  border: 1px solid #555;
+  border: 1px solid var(--border-strong);
   border-radius: 50%;
   background: transparent;
   color: var(--text);
@@ -424,9 +269,6 @@ button:focus-visible {
 
 /* Hover styles only for devices with a mouse, so taps don't leave them stuck */
 @media (hover: hover) {
-  .reel:hover {
-    background: var(--surface-hover);
-  }
 
   button:hover:not(:disabled) {
     background: var(--green-hover);
@@ -434,12 +276,12 @@ button:focus-visible {
 
   .info-button:hover:not(:disabled) {
     border-color: var(--green);
-    background: #222;
+    background: var(--surface-hover);
   }
 }
 
 /* ==========================================================
-   6. Spin controls (fixed at the bottom)
+   Spin controls (fixed at the bottom)
    ========================================================== */
 .controls {
   position: fixed;
@@ -450,7 +292,7 @@ button:focus-visible {
 }
 
 /* ==========================================================
-   7. Spinning state
+   Spinning state
    ========================================================== */
 .reel.spinning {
   animation: spin-glow 700ms ease-in-out infinite alternate;
@@ -467,13 +309,14 @@ button:focus-visible {
 }
 
 /* ==========================================================
-   8. Info dialog (centred, about half the screen height)
+   Info dialog (centred, about half the screen height)
    ========================================================== */
 .info-dialog {
-  width: min(90vw, 420px);
-  max-height: 50dvh;
+  width: min(92vw, 420px);
+  max-height: 80dvh;
   padding: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
@@ -502,10 +345,10 @@ button:focus-visible {
 }
 
 .possible-result {
-  padding: 0.65rem 0.75rem;
+  padding: 0.75rem;
+  line-height: 1.4;
   border: 1px solid var(--border);
   border-radius: 8px;
-  color: var(--rarity-color, var(--text));
   font-size: 0.9rem;
   font-weight: 650;
 }
@@ -515,11 +358,12 @@ button:focus-visible {
 }
 
 .possible-result-names {
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
+  line-height: 1.5;
   color: var(--text);
   font-size: 0.85rem;
   font-weight: 400;
-  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .info-close {
@@ -527,15 +371,14 @@ button:focus-visible {
 }
 
 /* ==========================================================
-   9. Responsive layout
+   Responsive layout
    ========================================================== */
-@media (min-width: 620px) {
+@media (min-width: 760px) {
   body {
     padding: 2rem;
   }
 
   .reels {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
   }
 
@@ -545,22 +388,103 @@ button:focus-visible {
   }
 }
 
-@media (min-width: 960px) {
-  .reels {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (max-height: 500px) {
+  .info-dialog {
+    max-height: 90dvh;
   }
 }
 
-/* ==========================================================
-   10. Reduced motion
-   ========================================================== */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#category-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.4rem;
+  width: 100%;
+}
+
+#category-tabs [role="tab"] {
+  min-width: 0;
+  min-height: 2.1rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+#category-tabs [role="tab"]:hover {
+  background: var(--surface-hover);
+}
+
+#category-tabs [role="tab"][aria-selected="true"] {
+  background: var(--green);
+  color: var(--text);
+}
+
+#category-tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--border);
+  outline-offset: 2px;
+}
+
+.universe-select {
+  appearance: none;
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.6rem 2.5rem 0.6rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background-color: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+
+  /* Down-chevron */
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1rem) 50%,
+    calc(100% - 0.7rem) 50%;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.universe-select:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.universe-select:focus-visible {
+  border-color: var(--focus-ring);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.universe-select option {
+  background-color: var(--surface);
+  color: var(--text);
 }

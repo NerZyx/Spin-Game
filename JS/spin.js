@@ -1,3 +1,13 @@
+import { RARITIES } from "../data/rarities.js";
+import { pickRandom, weightedPick, rollCategory } from "./rolls.js";
+import {
+  loadTurnState,
+  saveTurnState,
+  loadLastResults,
+  saveLastResult,
+  resultKey
+} from "./storage.js";
+
 // Total spin duration range (unchanged).
 const SPIN_MIN_MS = 2200;
 const SPIN_MAX_MS = 2800;
@@ -63,8 +73,10 @@ function formatResult(result) {
 // Update a reel's displayed text and apply the CSS class for its rarity.
 function showEntry(element, text, rarity) {
   element.textContent = text;
-  element.className = `value ${RARITIES[rarity].label}`;
+  const details = rarity ? RARITIES[rarity] : undefined;
+  element.className = details ? `value ${details.label}` : "value";
 }
+
 
 // Pick a flicker, with more rare-or-better names as the reveal approaches.
 function randomFlash(category, progress) {
@@ -107,24 +119,39 @@ function randomFlash(category, progress) {
   };
 }
 
-// Display the final result, stop the animation, and re-enable the button.
+// Display the final result, save it, mark the spin as used, and refresh the turn display.
 function revealResult(reel, result) {
-  if (result === null) {
+  const hasResult = result !== null && Boolean(result.rarity);
+
+  if (hasResult) {
+    showEntry(reel.valueEl, formatResult(result), result.rarity);
+  } else {
     reel.valueEl.textContent = "Nothing";
     reel.valueEl.className = "value";
-  } else {
-    showEntry(reel.valueEl, formatResult(result), result.rarity);
   }
 
+  saveLastResult(resultKey(reel.universeId, reel.category.id), {
+    name: hasResult ? result.name : "Nothing",
+    rarity: hasResult ? result.rarity : null,
+    savedAt: new Date().toISOString()
+  });
+
+  spinsInProgress--;
+  markSpun(reel);
+
   reel.card.classList.remove("spinning");
-  reel.button.disabled = false;
+  renderTurn();
 }
 
 // Spin one reel and reveal its preselected result when the animation ends.
 function spinReel(reel) {
-  // Prevent another spin on this reel until the current one finishes.
+  // Only one spin per category per turn.
+  if (hasSpun(reel)) return;
+
   reel.button.disabled = true;
   reel.card.classList.add("spinning");
+  spinsInProgress++;
+  renderTurn();
 
   // Select the outcome before the visual flickering begins.
   const result = rollCategory(reel.category);
@@ -183,6 +210,7 @@ function spinReel(reel) {
 
 // Find the page element that will contain all reel cards.
 const reelsContainer = document.getElementById("reels");
+const categoryTabs = document.getElementById("category-tabs");
 
 // Create one reusable dialog for showing a category's possible results.
 const infoDialog = document.createElement("dialog");
@@ -190,7 +218,6 @@ infoDialog.className = "info-dialog";
 infoDialog.addEventListener("click", event => {
   if (event.target === infoDialog) infoDialog.close();
 });
-
 
 const dialogContent = document.createElement("div");
 dialogContent.className = "info-dialog-content";
@@ -210,99 +237,275 @@ dialogContent.append(dialogTitle, resultsList, closeButton);
 infoDialog.append(dialogContent);
 document.body.append(infoDialog);
 
-// Create one card and button for each category in the game data.
-const reels = GAME_DATA.map(category => {
-  const card = document.createElement("div");
-  card.className = "reel";
+// The reels currently shown on the page.
+let reels = [];
 
-  // Put the category title and info button in a shared header row.
-  const header = document.createElement("div");
-  header.className = "reel-header";
+// The id of the universe whose reels are currently shown.
+let currentUniverseId = null;
 
-  const title = document.createElement("h2");
-  title.textContent = category.label;
 
-  const infoButton = document.createElement("button");
-  infoButton.type = "button";
-  infoButton.className = "info-button";
-  infoButton.textContent = "i";
-  infoButton.setAttribute("aria-label", `Show possible ${category.label} results`);
+// Remove the old reels and create one card per category in the given list.
+function buildReels(categories) {
+  reelsContainer.replaceChildren();
 
-  infoButton.addEventListener("click", () => {
-    dialogTitle.textContent = `${category.label} results`;
-    resultsList.replaceChildren();
+  reels = categories.map(category => {
+    const card = document.createElement("div");
+    card.className = "reel";
 
-    // Add "Nothing" first if this category is missing any rarities.
-    const availableRarities = new Set(
-      category.entries.map(entry => entry.rarity)
-    );
+    // Put the category title and info button in a shared header row.
+    const header = document.createElement("div");
+    header.className = "reel-header";
 
-    const nothingChance = Object.entries(RARITIES)
-      .filter(([rarity]) => !availableRarities.has(rarity))
-      .reduce((total, [, details]) => total + details.weight, 0);
+    const title = document.createElement("h2");
+    title.textContent = category.label;
 
-    if (nothingChance > 0) {
-      const item = document.createElement("li");
-      item.textContent = `Nothing — ${nothingChance}%`;
-      item.className = "possible-result nothing-result";
-      resultsList.append(item);
-    }
+    const infoButton = document.createElement("button");
+    infoButton.type = "button";
+    infoButton.className = "info-button";
+    infoButton.textContent = "i";
+    infoButton.setAttribute("aria-label", `Show possible ${category.label} results`);
 
-    // Show each available rarity's total chance, then its possible results.
-    Object.entries(RARITIES).forEach(([rarityKey, rarity]) => {
-      const entries = category.entries.filter(
-        entry => entry.rarity === rarityKey
+    infoButton.addEventListener("click", () => {
+      dialogTitle.textContent = `${category.label} results`;
+      resultsList.replaceChildren();
+
+      // Add "Nothing" first if this category is missing any rarities.
+      const availableRarities = new Set(
+        category.entries.map(entry => entry.rarity)
       );
 
-      if (entries.length === 0) return;
+      const nothingChance = Object.entries(RARITIES)
+        .filter(([rarity]) => !availableRarities.has(rarity))
+        .reduce((total, [, details]) => total + details.weight, 0);
 
-      const item = document.createElement("li");
-      item.className = `possible-result ${rarity.label}`;
+      if (nothingChance > 0) {
+        const item = document.createElement("li");
+        item.textContent = `Nothing - ${nothingChance}%`;
+        item.className = "possible-result nothing-result";
+        resultsList.append(item);
+      }
 
-      const heading = document.createElement("strong");
-      heading.textContent = `${rarity.label} — ${rarity.weight}%`;
+      // Show each available rarity's total chance, then its possible results.
+      Object.entries(RARITIES).forEach(([rarityKey, rarity]) => {
+        const entries = category.entries.filter(
+          entry => entry.rarity === rarityKey
+        );
 
-      const names = document.createElement("div");
-      names.className = "possible-result-names";
-      names.textContent = entries.map(entry => entry.name).join(", ");
+        if (entries.length === 0) return;
 
-      item.append(heading, names);
-      resultsList.append(item);
+        const item = document.createElement("li");
+        item.className = "possible-result";
+
+        const heading = document.createElement("strong");
+        heading.className = rarity.label;
+        heading.textContent = `${rarity.label} - ${rarity.weight}%`;
+
+        const names = document.createElement("div");
+        names.className = "possible-result-names";
+        names.textContent = entries.map(entry => entry.name).join(", ");
+
+        item.append(heading, names);
+        resultsList.append(item);
+      });
+
+      infoDialog.showModal();
+
+      requestAnimationFrame(() => {
+        dialogTitle.focus({ preventScroll: true });
+        infoDialog.scrollTop = 0;
+        dialogContent.scrollTop = 0;
+        resultsList.scrollTop = 0;
+      });
     });
 
-    infoDialog.showModal();
+    header.append(title, infoButton);
 
-    requestAnimationFrame(() => {
-      dialogTitle.focus({ preventScroll: true });
-      infoDialog.scrollTop = 0;
-      dialogContent.scrollTop = 0;
-      resultsList.scrollTop = 0;
-    })
+    // Show this category's last saved result, or a placeholder if there is none.
+    const valueEl = document.createElement("div");
+    valueEl.className = "value";
+
+    const saved = loadLastResults()[resultKey(currentUniverseId, category.id)];
+
+    if (saved) {
+      showEntry(valueEl, saved.name, saved.rarity);
+    } else {
+      valueEl.textContent = "--";
+    }
+
+    // Add a button that starts a spin for this category.
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "spin-button";
+    button.textContent = "SPIN";
+    button.setAttribute("aria-label", `Spin ${category.label}`);
+
+   
+    card.append(header, valueEl, button);
+    reelsContainer.append(card);
+
+   
+        return { category, card, valueEl, button, universeId: currentUniverseId };
   });
 
-  header.append(title, infoButton);
+  const kindForCategory = category =>
+  typeof category.kind === "string" && category.kind.trim()
+    ? category.kind.trim()
+    : "other";
 
-  // Add the element that will show the current or final result.
-  const valueEl = document.createElement("div");
-  valueEl.className = "value";
-  valueEl.textContent = "--";
+const kinds = [...new Set(reels.map(reel => kindForCategory(reel.category)))];
 
-  // Add a button that starts a spin for this category.
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "spin-button";
-  button.textContent = "SPIN";
-  button.setAttribute("aria-label", `Spin ${category.label}`);
+categoryTabs.setAttribute("role", "tablist");
+categoryTabs.setAttribute("aria-label", "Category kinds");
+categoryTabs.replaceChildren();
 
-  // Place the heading, value, and button inside the card, then add it to the page.
-  card.append(header, valueEl, button);
-  reelsContainer.append(card);
+function selectKind(selectedKind) {
+  reels.forEach(reel => {
+    reel.card.style.display =
+      kindForCategory(reel.category) === selectedKind ? "" : "none";
+  });
 
-  // Keep references to the elements and category for the spin handler.
-  return { category, card, valueEl, button };
+  for (const tab of categoryTabs.children) {
+    const selected = tab.dataset.kind === selectedKind;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  }
+}
+
+for (const kind of kinds) {
+  const tab = document.createElement("button");
+  tab.type = "button";
+  tab.textContent = kind.charAt(0).toUpperCase() + kind.slice(1);
+  tab.dataset.kind = kind;
+  tab.setAttribute("role", "tab");
+  tab.addEventListener("click", () => selectKind(kind));
+  categoryTabs.append(tab);
+}
+
+if (kinds.length > 0) selectKind(kinds[0]);
+
+
+  reels.forEach(reel => {
+    reel.button.addEventListener("click", () => spinReel(reel));
+  });
+}
+
+
+const UNIVERSE_FILES = [
+  { id: "naruto", label: "Naruto", path: "../data/naruto.js" },
+  { id: "bleach", label: "Bleach", path: "../data/bleach.js" }
+];
+
+
+const universeBar = document.getElementById("universe-bar");
+
+const universeLabel = document.createElement("label");
+universeLabel.htmlFor = "universe-select";
+universeLabel.textContent = "Universe";
+
+const universeSelect = document.createElement("select");
+universeSelect.id = "universe-select";
+universeSelect.className = "universe-select";
+
+
+UNIVERSE_FILES.forEach(entry => {
+  const option = document.createElement("option");
+  option.value = entry.id;
+  option.textContent = entry.label;
+  universeSelect.append(option);
 });
 
-// Connect each button to the spin function for its own reel.
-reels.forEach(reel => {
-  reel.button.addEventListener("click", () => spinReel(reel));
+universeBar.append(universeLabel, universeSelect);
+
+
+let latestRequest = 0;
+
+
+async function showUniverse(entry) {
+  const requestId = ++latestRequest;
+  universeSelect.value = entry.id;
+
+  const module = await import(entry.path);
+
+  if (requestId !== latestRequest) return;
+
+  currentUniverseId = entry.id;
+  buildReels(module.default.GAME_DATA);
+  renderTurn();
+}
+
+universeSelect.addEventListener("change", () => {
+  const entry = UNIVERSE_FILES.find(item => item.id === universeSelect.value);
+  if (entry) showUniverse(entry);
 });
+
+let turnState = loadTurnState();
+
+let spinsInProgress = 0;
+
+function hasSpun(reel) {
+  return turnState.spent.includes(resultKey(reel.universeId, reel.category.id));
+}
+
+function markSpun(reel) {
+  const key = resultKey(reel.universeId, reel.category.id);
+  if (!turnState.spent.includes(key)) turnState.spent.push(key);
+  saveTurnState(turnState);
+}
+
+const turnBar = document.getElementById("turn-bar");
+
+const turnLabel = document.createElement("strong");
+
+const turnWarning = document.createElement("p");
+turnWarning.className = "turn-warning";
+turnWarning.setAttribute("role", "status");
+
+const nextTurnButton = document.createElement("button");
+nextTurnButton.type = "button";
+nextTurnButton.className = "next-turn-button";
+nextTurnButton.textContent = "Next turn";
+
+turnBar.append(turnLabel, turnWarning, nextTurnButton);
+
+function renderTurn() {
+  turnLabel.textContent = `Turn ${turnState.turn}`;
+
+  const remaining = reels.filter(reel => !hasSpun(reel));
+
+  if (remaining.length === 0) {
+    turnWarning.textContent = "All categories have been spun this turn.";
+    turnWarning.classList.remove("warning");
+  } else {
+    const names = remaining.map(reel => reel.category.label).join(", ");
+    turnWarning.textContent = `Still to spin: ${names}.`;
+    turnWarning.classList.add("warning");
+  }
+
+  reels.forEach(reel => {
+    reel.button.disabled =
+      hasSpun(reel) || reel.card.classList.contains("spinning");
+  });
+  nextTurnButton.disabled = spinsInProgress > 0;
+}
+
+function nextTurn() {
+  if (spinsInProgress > 0) return;
+
+  const remaining = reels.filter(reel => !hasSpun(reel));
+
+  if (remaining.length > 0) {
+    const names = remaining.map(reel => reel.category.label).join(", ");
+    const proceed = window.confirm(
+      `These categories haven't been spun this turn: ${names}.\n\nPass the turn anyway?`
+    );
+    if (!proceed) return;
+  }
+
+  turnState = { turn: turnState.turn + 1, spent: [] };
+  saveTurnState(turnState);
+  renderTurn();
+}
+
+nextTurnButton.addEventListener("click", nextTurn);
+
+showUniverse(UNIVERSE_FILES[0]);

@@ -7,16 +7,15 @@
   <title>Spin Wheel</title>
 
   <link rel="stylesheet" href="CSS/style.css">
-
-  <script src="JS/data.js" defer></script>
-  <script src="JS/rolls.js" defer></script>
-  <script src="JS/spin.js" defer></script>
+  <script type="module" src="JS/spin.js"></script>
 </head>
 
 <body>
   <main>
-    <h1>Character Stats</h1>
+    <div class="universe-bar" id="universe-bar"></div>
+    <div id="category-tabs" role="tablist" aria-label="Reel categories"></div>
     <div class="reels" id="reels"></div>
+    <div class="turn-bar" id="turn-bar"></div>
   </main>
 </body>
 
