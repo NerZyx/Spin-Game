@@ -1,4 +1,4 @@
-import { RARITIES } from "../data/rarities.js";
+import { RARITIES } from "../data/data.js";
 
 // Return one randomly selected item from an array.
 export function pickRandom(list) {

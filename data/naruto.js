@@ -3,6 +3,17 @@ export default {
   label: "Naruto",
   GAME_DATA: [
     {
+      id: "clan",
+      label: "Clan",
+      kind: "clan",
+      entries: [
+        { id: "uchiha",   name: "Uchiha", description: "sharingan user"},
+        { id: "senju",   name: "Senju",},
+        { id: "uzumaki",   name: "Uzumaki",},
+        { id: "kazekage",   name: "Kazekage",}
+      ]
+    },
+    {
       id: "strength",
       label: "Strength",
       kind: "stat",

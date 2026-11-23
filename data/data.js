@@ -1,3 +1,9 @@
+export const UNIVERSES = [
+  { id: "naruto", label: "Naruto", path: "../data/naruto.js" },
+  { id: "bleach", label: "Bleach", path: "../data/bleach.js" }
+];
+
+
 // chance is weight: 1 ==> 1%
 export const RARITIES = {
   common:       { label: "Common",       weight: 31 },

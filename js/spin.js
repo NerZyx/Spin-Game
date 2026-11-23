@@ -1,4 +1,4 @@
-import { RARITIES } from "../data/rarities.js";
+import { RARITIES } from "../data/data.js";
 import { pickRandom, weightedPick, rollCategory } from "./rolls.js";
 import {
   loadTurnState,
@@ -34,15 +34,8 @@ const HESITATION_MAX_COUNT = 3;
 const HESITATION_MIN_MS = 300;
 const HESITATION_MAX_MS = 700;
 
-
-
 // Rarity keys in their defined order (common to supreme).
 const RARITY_KEYS = Object.keys(RARITIES);
-
-// Check whether the user has requested reduced motion in their system settings.
-const REDUCE_MOTION = window.matchMedia(
-  "(prefers-reduced-motion: reduce)"
-).matches;
 
 // Linearly blend between two values.
 function lerp(start, end, amount) {
@@ -155,12 +148,6 @@ function spinReel(reel) {
 
   // Select the outcome before the visual flickering begins.
   const result = rollCategory(reel.category);
-
-  // Skip the animation when reduced motion is enabled.
-  if (REDUCE_MOTION) {
-    revealResult(reel, result);
-    return;
-  }
 
   // Pick a random length for this spin.
   const duration = lerp(SPIN_MIN_MS, SPIN_MAX_MS, Math.random());
@@ -389,55 +376,6 @@ if (kinds.length > 0) selectKind(kinds[0]);
   });
 }
 
-
-const UNIVERSE_FILES = [
-  { id: "naruto", label: "Naruto", path: "../data/naruto.js" },
-  { id: "bleach", label: "Bleach", path: "../data/bleach.js" }
-];
-
-
-const universeBar = document.getElementById("universe-bar");
-
-const universeLabel = document.createElement("label");
-universeLabel.htmlFor = "universe-select";
-universeLabel.textContent = "Universe";
-
-const universeSelect = document.createElement("select");
-universeSelect.id = "universe-select";
-universeSelect.className = "universe-select";
-
-
-UNIVERSE_FILES.forEach(entry => {
-  const option = document.createElement("option");
-  option.value = entry.id;
-  option.textContent = entry.label;
-  universeSelect.append(option);
-});
-
-universeBar.append(universeLabel, universeSelect);
-
-
-let latestRequest = 0;
-
-
-async function showUniverse(entry) {
-  const requestId = ++latestRequest;
-  universeSelect.value = entry.id;
-
-  const module = await import(entry.path);
-
-  if (requestId !== latestRequest) return;
-
-  currentUniverseId = entry.id;
-  buildReels(module.default.GAME_DATA);
-  renderTurn();
-}
-
-universeSelect.addEventListener("change", () => {
-  const entry = UNIVERSE_FILES.find(item => item.id === universeSelect.value);
-  if (entry) showUniverse(entry);
-});
-
 let turnState = loadTurnState();
 
 let spinsInProgress = 0;
@@ -508,4 +446,25 @@ function nextTurn() {
 
 nextTurnButton.addEventListener("click", nextTurn);
 
-showUniverse(UNIVERSE_FILES[0]);
+const gameStart = window.GAME_START;
+
+if (!gameStart?.universeData?.GAME_DATA) {
+  throw new Error("No starting-menu selection was provided to spin.js.");
+}
+
+currentUniverseId = gameStart.universeId;
+
+const playerInfo = document.getElementById("player-info");
+if (playerInfo) {
+  playerInfo.textContent =
+    `${gameStart.playerName} — ${gameStart.clanName} (${gameStart.universeLabel})`;
+}
+
+// Clan is chosen in the menu, so it isn't shown as a spin reel.
+const spinCategories = gameStart.universeData.GAME_DATA.filter(
+  category => category.id !== "clan" && category.kind !== "clan"
+);
+
+buildReels(spinCategories);
+renderTurn();
+
