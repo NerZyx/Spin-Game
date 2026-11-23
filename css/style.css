@@ -595,24 +595,25 @@ button:focus-visible {
 
 #clan-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   grid-auto-rows: 150px;
-  gap: 1rem;
+  gap: 12px;
 }
 
-.clan-choice {
+#clan-options .clan-choice {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
-  align-content: start;
   justify-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
+  gap: 8px;
+  padding: 12px;
   text-align: center;
 }
 
-.clan-choice-description {
-  overflow-wrap: anywhere;
+@media (max-width: 400px) {
+  #clan-options {
+    grid-template-columns: 1fr;
+  }
 }
