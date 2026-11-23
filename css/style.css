@@ -617,3 +617,44 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+#start-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  padding: 12px;
+  overflow: hidden;
+}
+
+#start-form {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100vh;  /* fallback */
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto auto auto auto auto minmax(0, 1fr) auto auto;
+  gap: 8px;
+  min-height: 0;
+}
+
+#start-form > * {
+  margin: 0;
+}
+
+#clan-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 140px;
+  gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+#clan-options .clan-choice {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}

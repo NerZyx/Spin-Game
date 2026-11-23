@@ -10,7 +10,11 @@ export default {
         { id: "uchiha",   name: "Uchiha", description: "sharingan user"},
         { id: "senju",   name: "Senju",},
         { id: "uzumaki",   name: "Uzumaki",},
-        { id: "kazekage",   name: "Kazekage",}
+        { id: "kazekage",   name: "Kazekage",},
+        { id: "kazekage2",   name: "Kazekage",},
+        { id: "kazekage3",   name: "Kazekage",},
+        { id: "kazekage4",   name: "Kazekage",},
+        { id: "kazekage5",   name: "Kazekage",}
       ]
     },
     {
