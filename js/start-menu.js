@@ -10,37 +10,35 @@ if (!main) {
 
 main.hidden = true;
 
-const menu = document.createElement("section");
+const menu = document.createElement("form");
 menu.id = "start-menu";
 menu.innerHTML = `
-  <form id="start-form">
-    <h1>Start your game</h1>
+  <h1>Start your game</h1>
 
-    <label for="player-name">Name</label>
-    <input
-      id="player-name"
-      name="playerName"
-      type="text"
-      maxlength="30"
-      required
-      autocomplete="nickname"
-      placeholder="Enter your name"
-    >
+  <label for="player-name">Name</label>
+  <input
+    id="player-name"
+    name="playerName"
+    type="text"
+    maxlength="30"
+    required
+    autocomplete="nickname"
+    placeholder="Enter your name"
+  >
 
-    <label for="universe-select">Universe</label>
-    <select id="universe-select" name="universe" required></select>
+  <label for="universe-select">Universe</label>
+  <select id="universe-select" name="universe" required></select>
 
-    <span id="clan-label">Choose a clan</span>
-    <div id="clan-options" role="group" aria-labelledby="clan-label"></div>
+  <span id="clan-label">Choose a clan</span>
+  <div id="clan-options" role="group" aria-labelledby="clan-label"></div>
 
-    <p id="start-error" role="alert" aria-live="polite"></p>
-    <button id="start-button" type="submit" disabled>Start game</button>
-  </form>
+  <p id="start-error" role="alert" aria-live="polite"></p>
+  <button id="start-button" type="submit" disabled>Start game</button>
 `;
 
 document.body.prepend(menu);
 
-const form = menu.querySelector("#start-form");
+const form = menu;
 const nameInput = menu.querySelector("#player-name");
 const universeSelect = menu.querySelector("#universe-select");
 const clanOptions = menu.querySelector("#clan-options");
