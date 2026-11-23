@@ -496,31 +496,37 @@ button:focus-visible {
 
 
 
-/* Start menu: one full-screen form with a scrollable clan area */
+/* Start menu */
 #start-menu {
   position: fixed;
   inset: 0;
   z-index: 1000;
   box-sizing: border-box;
+  width: min(100%, 640px);
+  height: 100vh; /* fallback */
+  height: 100dvh;
+  margin-inline: auto;
+  padding: clamp(14px, 4vw, 28px);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows:
-    auto
-    auto
-    auto
-    auto
-    auto
-    auto
-    minmax(0, 1fr)
-    auto
-    auto;
-  gap: 6px;
+    auto                  /* heading */
+    auto auto              /* name label and input */
+    auto auto              /* universe label and select */
+    auto                  /* clan label */
+    minmax(0, 1fr)          /* scrollable clan choices */
+    auto                  /* error */
+    auto;                 /* start button */
+  gap: 10px;
   min-width: 0;
   min-height: 0;
-  padding: 10px 12px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
   overflow: hidden;
-  background: var(--page-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at top, rgb(62 166 91 / 10%), transparent 55%),
+    var(--surface);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 45%);
   color: var(--text);
 }
 
@@ -531,18 +537,75 @@ button:focus-visible {
 }
 
 #start-menu h1 {
-  margin: 0;
+  margin: 0 0 4px;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
 }
 
+#start-menu label,
+#clan-label {
+  align-self: end;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Name input and universe selector */
 #start-menu input,
 #start-menu select {
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  min-height: 40px;
+  min-height: 46px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background-color: var(--page-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+#start-menu input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+#start-menu input:hover,
+#start-menu select:hover {
+  border-color: var(--green);
+}
+
+#start-menu input:focus-visible,
+#start-menu select:focus-visible {
+  border-color: var(--focus-ring);
+  outline: 3px solid rgb(169 210 255 / 25%);
+  outline-offset: 1px;
+}
+
+/* Custom dropdown arrow */
+#start-menu select {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 50%,
+    calc(100% - 0.85rem) 50%;
+  background-size: 0.35rem 0.35rem;
+  background-repeat: no-repeat;
+}
+
+#start-menu select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Scrollable clan grid */
 #clan-options {
-  grid-row: 7;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: 120px;
@@ -551,6 +614,7 @@ button:focus-visible {
   width: 100%;
   min-width: 0;
   min-height: 0;
+  padding: 2px;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
@@ -560,59 +624,99 @@ button:focus-visible {
 #clan-options .clan-choice {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  justify-items: start;
   gap: 6px;
   width: 100%;
   height: 100%;
   min-width: 0;
-  padding: 8px;
-  overflow: hidden;
+  padding: 10px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  text-align: center;
+  border-radius: 12px;
+  background: var(--page-bg);
+  color: var(--text);
+  text-align: left;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+#clan-options .clan-choice:hover:not(:disabled) {
+  border-color: var(--green);
+  background: var(--surface-hover);
 }
 
 #clan-options .clan-choice[aria-pressed="true"] {
   border: 2px solid var(--green);
-  background: var(--surface-hover);
+  background: rgb(62 166 91 / 12%);
+  box-shadow: 0 0 0 2px var(--green-glow);
 }
 
-#clan-options .clan-choice-name,
-#clan-options .clan-choice-description {
+#clan-options .clan-choice:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.clan-choice-name,
+.clan-choice-description {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-#clan-options .clan-choice-name {
+.clan-choice-name {
   color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.2;
 }
 
-#clan-options .clan-choice-description {
+.clan-choice-description {
   color: var(--muted);
-  font-size: 0.9em;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: normal;
 }
 
+/* Error and submit button */
 #start-error {
   min-height: 1.2em;
-  overflow-wrap: anywhere;
   color: #ff8b8b;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 #start-menu #start-button {
-  width: 100%;
-  min-height: 44px;
+  min-height: 48px;
+  border-radius: 12px;
+  background: var(--green);
+  color: var(--on-green);
+  font-size: 0.95rem;
 }
 
-@media (max-height: 500px) {
+#start-menu #start-button:hover:not(:disabled) {
+  background: var(--green-hover);
+}
+
+#start-menu #start-button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Compact spacing for short phone screens */
+@media (max-height: 600px) {
   #start-menu {
-    gap: 3px;
-    padding: 6px 10px;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    gap: 5px;
+    padding: 10px 14px;
+    border-radius: 0;
   }
 
   #start-menu input,
   #start-menu select {
-    min-height: 34px;
+    min-height: 38px;
   }
 
   #clan-options {
@@ -623,3 +727,13 @@ button:focus-visible {
     min-height: 40px;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  #start-menu *,
+  #start-menu *::before,
+  #start-menu *::after {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}
+
