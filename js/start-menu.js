@@ -12,6 +12,7 @@ main.hidden = true;
 
 const menu = document.createElement("form");
 menu.id = "start-menu";
+menu.noValidate = true;
 menu.innerHTML = `
   <h1>Start your game</h1>
 
@@ -273,11 +274,13 @@ form.addEventListener("submit", async event => {
     item => item.id === universeSelect.value
   );
 
-  if (!playerName || !universe || !selectedUniverseData || !clanChoiceMade) {
-    errorMessage.textContent =
-      "Enter your name, choose a universe, and choose a clan or No clan.";
-    return;
-  }
+if (!playerName || !universe || !selectedUniverseData || !clanChoiceMade) {
+  errorMessage.textContent =
+    "Enter your name, choose a universe, and choose a clan.";
+
+  if (!playerName) nameInput.focus();
+  return;
+}
 
   const profile = {
     playerName,
